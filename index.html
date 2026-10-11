@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101522">
+<title>Reproductor MP3 · Open Source</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#151c2f;--panel2:#1b2540;--text:#f4f6fb;--muted:#aab4ca;--accent:#54d6b3;--line:#2b3652}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1000px 500px at 10% -10%,#20304d 0%,transparent 60%),var(--bg);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text)}
+button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);padding:10px 13px}button:hover{border-color:var(--accent)}button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:1080px;margin:0 auto;padding:22px}.top{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}.brand{display:flex;gap:12px;align-items:center}.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#5a87ff);display:grid;place-items:center;color:#08101b;font-size:24px;font-weight:900}.brand h1{font-size:clamp(20px,3vw,28px);margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:13px}.actions{display:flex;gap:8px;flex-wrap:wrap}.primary{background:var(--accent);color:#07131a;border-color:transparent;font-weight:750}.layout{display:grid;grid-template-columns:minmax(0, .9fr) minmax(320px,1.1fr);gap:18px}.panel{background:linear-gradient(160deg,rgba(28,38,62,.96),rgba(17,23,40,.98));border:1px solid var(--line);border-radius:22px;padding:20px;min-width:0;box-shadow:0 16px 50px #0002}.art-wrap{width:min(100%,330px);margin:0 auto 20px;position:relative}.art{width:100%;aspect-ratio:1;object-fit:cover;border-radius:18px;background:#202b43;border:1px solid #ffffff14}.art-placeholder{display:grid;place-items:center;font-size:80px;color:#647493;background:linear-gradient(135deg,#202b43,#111827)}.now{text-align:center}.now h2{font-size:22px;line-height:1.2;margin:0 0 6px;overflow-wrap:anywhere}.now p{color:var(--muted);margin:0}.timeline{margin:20px 0 10px}.range{width:100%;accent-color:var(--accent);cursor:pointer}.times{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}.controls{display:flex;justify-content:center;align-items:center;gap:10px;margin:18px 0}.controls button{width:46px;height:46px;font-size:18px}.controls .play{width:62px;height:62px;border-radius:50%;font-size:24px;background:var(--accent);color:#07131a;border:0}.toggles{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.toggle.active{border-color:var(--accent);color:var(--accent)}.volume{display:flex;align-items:center;gap:10px;margin-top:18px;color:var(--muted)}.volume input{width:100%;accent-color:var(--accent)}.library-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.library-head h2{font-size:19px;margin:0}.count{font-size:12px;color:var(--muted)}.search{width:100%;background:#0c1222;border:1px solid var(--line);color:var(--text);border-radius:12px;padding:12px;margin-bottom:12px}.drop{border:1px dashed #52617f;border-radius:14px;padding:14px;text-align:center;color:var(--muted);margin-bottom:14px;font-size:13px}.drop.drag{border-color:var(--accent);background:#54d6b311}.tracklist{display:flex;flex-direction:column;gap:6px;max-height:490px;overflow:auto;padding-right:3px}.track{display:flex;align-items:center;gap:11px;padding:10px;border-radius:13px;border:1px solid transparent;background:#0d1425;min-width:0}.track.current{border-color:#54d6b377;background:#54d6b311}.track-num{width:26px;text-align:center;color:var(--muted);flex-shrink:0}.track-info{min-width:0;flex:1}.track-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:650}.track-meta{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.track button{padding:6px 10px}.empty{padding:30px 10px;text-align:center;color:var(--muted)}.footer{margin-top:15px;color:var(--muted);font-size:12px;text-align:center}.hidden{display:none!important}.settings{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.settings label{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:13px}.settings input[type=text]{min-width:0;width:150px;background:#0c1222;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px}.notice{margin-top:12px;font-size:12px;color:var(--muted)}@media(max-width:760px){.app{padding:12px}.layout{grid-template-columns:1fr}.panel{padding:16px}.art-wrap{width:min(72vw,280px)}.tracklist{max-height:360px}.top{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="logo">♫</div><div><h1 id="appTitle">Mi biblioteca musical</h1><p>Reproductor MP3 · Código abierto MIT</p></div></div>
+    <div class="actions">
+      <button class="primary" id="folderBtn">＋ Cargar carpeta</button>
+      <button id="filesBtn">Añadir archivos</button>
+      <button id="coverBtn">Cambiar portada</button>
+      <button id="clearBtn" title="Vaciar la lista">Limpiar</button>
+    </div>
+    <input id="folderInput" type="file" accept="audio/mpeg,audio/mp3,audio/*" webkitdirectory directory multiple class="hidden">
+    <input id="filesInput" type="file" accept="audio/mpeg,audio/mp3,audio/*" multiple class="hidden">
+    <input id="coverInput" type="file" accept="image/*" class="hidden">
+  </header>
+  <main class="layout">
+    <section class="panel">
+      <div class="art-wrap"><img id="cover" class="art art-placeholder" alt="Portada del álbum" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23151c2f'/%3E%3Ctext x='50%25' y='54%25' font-size='130' text-anchor='middle' fill='%2354d6b3'%3E%E2%99%AB%3C/text%3E%3C/svg%3E"></div>
+      <div class="now"><h2 id="trackTitle">Selecciona una canción</h2><p id="trackArtist">Tu música, a tu manera</p></div>
+      <div class="timeline"><input id="seek" class="range" type="range" min="0" max="1000" value="0" aria-label="Posición de reproducción"><div class="times"><span id="elapsed">0:00</span><span id="duration">0:00</span></div></div>
+      <div class="controls">
+        <button id="shuffleBtn" class="toggle" title="Aleatorio" aria-label="Aleatorio">🔀</button>
+        <button id="prevBtn" title="Anterior" aria-label="Anterior">⏮</button>
+        <button id="playBtn" class="play" title="Reproducir" aria-label="Reproducir">▶</button>
+        <button id="nextBtn" title="Siguiente" aria-label="Siguiente">⏭</button>
+        <button id="repeatBtn" class="toggle" title="Repetir lista" aria-label="Repetir">🔁</button>
+      </div>
+      <div class="toggles"><button id="muteBtn" class="toggle">🔊 Silenciar</button><label class="volume">Volumen <input id="volume" type="range" min="0" max="1" step="0.01" value="0.8"></label></div>
+      <div class="settings">
+        <label>Velocidad <select id="speed" style="background:#0c1222;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px"><option value=".5">0.5×</option><option value=".75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label>
+        <label>Nombre <input id="titleInput" type="text" placeholder="Nombre del reproductor"></label><button id="applyTitleBtn">Aplicar</button>
+      </div>
+      <p class="notice" id="status" role="status">Carga una carpeta o selecciona archivos MP3 para empezar.</p>
+    </section>
+    <section class="panel">
+      <div class="library-head"><h2>Lista de reproducción</h2><span class="count" id="count">0 canciones</span></div>
+      <input id="search" class="search" type="search" placeholder="Buscar canción o archivo…" aria-label="Buscar canciones">
+      <div id="drop" class="drop">También puedes arrastrar archivos MP3 aquí.</div>
+      <div id="tracklist" class="tracklist"><div class="empty">Tu biblioteca está vacía.<br>Usa “Cargar carpeta” o “Añadir archivos”.</div></div>
+    </section>
+  </main>
+  <div class="footer">Tus archivos se reproducen localmente en tu navegador; no se suben a ningún servidor. © 2026 · Licencia MIT.</div>
+</div>
+<audio id="audio" preload="metadata"></audio>
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const audio = $("audio");
+  let tracks = [], current = -1, shuffle = false, repeat = false, objectUrls = [], coverUrl = "";
+  const fmt = s => { if (!Number.isFinite(s) || s < 0) return "0:00"; const m=Math.floor(s/60), sec=Math.floor(s%60); return `${m}:${String(sec).padStart(2,"0")}`; };
+  const revokeTrackUrls = () => { objectUrls.forEach(URL.revokeObjectURL); objectUrls=[]; };
+  function addFiles(fileList) {
+    const files = [...fileList].filter(f => /^audio\//.test(f.type) || /\.(mp3|mpeg|m4a|ogg|wav|flac|aac|opus)$/i.test(f.name));
+    if (!files.length) { $("status").textContent = "No se encontraron archivos de audio compatibles."; return; }
+    const existing = new Set(tracks.map(t => `${t.name}|${t.size}`));
+    const fresh = files.filter(f => !existing.has(`${f.name}|${f.size}`)).sort((a,b) => a.webkitRelativePath.localeCompare(b.webkitRelativePath, "es", {numeric:true}) || a.name.localeCompare(b.name,"es",{numeric:true}));
+    fresh.forEach(file => { const url=URL.createObjectURL(file); objectUrls.push(url); tracks.push({file,url,name:file.name.replace(/\.[^.]+$/,""),path:file.webkitRelativePath||file.name,size:file.size}); });
+    if (current < 0 && tracks.length) playTrack(0, false);
+    render();
+    $("status").textContent = `${fresh.length} archivo(s) agregado(s). La selección de carpeta no queda sincronizada automáticamente; vuelve a seleccionarla para actualizar.`;
+  }
+  function playTrack(index, autoplay=true) {
+    if (!tracks.length) return;
+    current = (index + tracks.length) % tracks.length;
+    audio.src = tracks[current].url;
+    $("trackTitle").textContent = tracks[current].name;
+    $("trackArtist").textContent = tracks[current].path;
+    $("playBtn").textContent = "▶";
+    $("elapsed").textContent="0:00"; $("duration").textContent="0:00"; $("seek").value=0;
+    render();
+    if (autoplay) audio.play().then(()=>{$("playBtn").textContent="❚❚";}).catch(()=>{$("status").textContent="Pulsa Reproducir si el navegador bloqueó el inicio automático.";});
+  }
+  function render() {
+    const q=$("search").value.trim().toLocaleLowerCase("es");
+    const list=$("tracklist"); list.innerHTML="";
+    const visible=tracks.map((t,i)=>({...t,i})).filter(t=>`${t.name} ${t.path}`.toLocaleLowerCase("es").includes(q));
+    $("count").textContent=`${tracks.length} canción(es)`;
+    if (!visible.length) { list.innerHTML='<div class="empty">No hay canciones que coincidan.</div>'; return; }
+    visible.forEach(t=>{
+      const row=document.createElement("div"); row.className="track"+(t.i===current?" current":"");
+      const num=document.createElement("span"); num.className="track-num"; num.textContent=t.i===current?"♫":String(t.i+1);
+      const info=document.createElement("div"); info.className="track-info";
+      const title=document.createElement("div"); title.className="track-title"; title.textContent=t.name;
+      const meta=document.createElement("div"); meta.className="track-meta"; meta.textContent=t.path;
+      info.append(title,meta);
+      const play=document.createElement("button"); play.textContent=t.i===current&& !audio.paused?"❚❚":"▶"; play.setAttribute("aria-label","Reproducir "+t.name);
+      play.addEventListener("click",()=>{if(t.i===current&&!audio.paused){audio.pause();}else{playTrack(t.i,true);}});
+      row.append(num,info,play); row.addEventListener("dblclick",()=>playTrack(t.i,true)); list.append(row);
+    });
+  }
+  function next() { if (!tracks.length) return; let n; if(shuffle&&tracks.length>1){do{n=Math.floor(Math.random()*tracks.length)}while(n===current)}else n=current+1; if(n>=tracks.length){if(repeat)n=0;else{audio.pause();$("playBtn").textContent="▶";return}} playTrack(n,true); }
+  $("folderBtn").addEventListener("click",()=>$("folderInput").click());
+  $("filesBtn").addEventListener("click",()=>$("filesInput").click());
+  $("coverBtn").addEventListener("click",()=>$("coverInput").click());
+  $("folderInput").addEventListener("change",e=>{addFiles(e.target.files);e.target.value="";});
+  $("filesInput").addEventListener("change",e=>{addFiles(e.target.files);e.target.value="";});
+  $("coverInput").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;if(coverUrl)URL.revokeObjectURL(coverUrl);coverUrl=URL.createObjectURL(f);$("cover").src=coverUrl;$("cover").classList.remove("art-placeholder");});
+  $("playBtn").addEventListener("click",()=>{if(!tracks.length){$("status").textContent="Primero carga canciones.";return}if(audio.paused)audio.play().then(()=>$("playBtn").textContent="❚❚").catch(()=>{});else audio.pause();});
+  $("prevBtn").addEventListener("click",()=>{if(audio.currentTime>3){audio.currentTime=0}else playTrack(current-1,true)});
+  $("nextBtn").addEventListener("click",next);
+  $("shuffleBtn").addEventListener("click",()=>{shuffle=!shuffle;$("shuffleBtn").classList.toggle("active",shuffle);$("shuffleBtn").title=shuffle?"Aleatorio activado":"Aleatorio";});
+  $("repeatBtn").addEventListener("click",()=>{repeat=!repeat;$("repeatBtn").classList.toggle("active",repeat);$("repeatBtn").title=repeat?"Repetir lista activado":"Repetir lista";audio.loop=false;});
+  $("muteBtn").addEventListener("click",()=>{audio.muted=!audio.muted;$("muteBtn").classList.toggle("active",audio.muted);$("muteBtn").textContent=audio.muted?"🔇 Activar sonido":"🔊 Silenciar";});
+  $("volume").addEventListener("input",e=>{audio.volume=Number(e.target.value);if(audio.volume>0)audio.muted=false;});
+  $("speed").addEventListener("change",e=>audio.playbackRate=Number(e.target.value));
+  $("search").addEventListener("input",render);
+  $("seek").addEventListener("input",()=>{if(Number.isFinite(audio.duration))audio.currentTime=(Number($("seek").value)/1000)*audio.duration;});
+  audio.addEventListener("timeupdate",()=>{if(Number.isFinite(audio.duration)){$("seek").value=audio.currentTime/audio.duration*1000;$("elapsed").textContent=fmt(audio.currentTime);$("duration").textContent=fmt(audio.duration)}});
+  audio.addEventListener("play",()=>{$("playBtn").textContent="❚❚";render()});
+  audio.addEventListener("pause",()=>{$("playBtn").textContent="▶";render()});
+  audio.addEventListener("ended",()=>{if(repeat&&current===tracks.length-1)playTrack(0,true);else next()});
+  audio.addEventListener("error",()=>{$("status").textContent="No se pudo reproducir este archivo. Prueba con un MP3 compatible.";});
+  $("clearBtn").addEventListener("click",()=>{audio.pause();audio.removeAttribute("src");audio.load();revokeTrackUrls();tracks=[];current=-1;render();$("trackTitle").textContent="Selecciona una canción";$("trackArtist").textContent="Tu música, a tu manera";$("seek").value=0;$("elapsed").textContent="0:00";$("duration").textContent="0:00";$("status").textContent="Biblioteca vacía.";});
+  $("applyTitleBtn").addEventListener("click",()=>{const v=$("titleInput").value.trim();if(v)$("appTitle").textContent=v;});
+  const drop=$("drop");
+  ["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("drag")}));
+  ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag")}));
+  drop.addEventListener("drop",e=>addFiles(e.dataTransfer.files));
+  window.addEventListener("beforeunload",()=>{revokeTrackUrls();if(coverUrl)URL.revokeObjectURL(coverUrl)});
+})();
+</script>
+</body>
+</html>
